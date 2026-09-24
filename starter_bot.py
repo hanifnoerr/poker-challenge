@@ -1,6 +1,6 @@
-"""Original educational baseline inspired by general poker strategy concepts.
+"""Educational poker baseline.
 
-Credit and differences: see ATTRIBUTION.md. Change agent() to build your bot.
+Change agent() to build your bot.
 Only the Python standard library and poker_challenge SDK are needed.
 """
 

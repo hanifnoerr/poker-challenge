@@ -108,8 +108,7 @@ network calls, and background processes.
 `starter_bot.py` is an original educational implementation: preflop heuristic,
 postflop Monte Carlo equity against random opponent cards, pot odds, position,
 pot-relative bet sizing, and occasional bluffs. Its randomness is deterministic
-from visible observations. It is not an optimal or calibrated strategy. See
-[ATTRIBUTION.md](ATTRIBUTION.md) for the reference project, authors, and differences.
+from visible observations. It is not an optimal or calibrated strategy.
 
 ## Rules
 
