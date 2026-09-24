@@ -14,6 +14,7 @@ import uuid
 from .bots import BASELINES
 from .match import run_match
 from .submissions import ScriptAgent
+from .tournament import run_tournament
 
 ROOT = Path(__file__).resolve().parent.parent
 STATIC = Path(__file__).with_name("static")
@@ -29,6 +30,56 @@ class Arena:
         self.token = secrets.token_urlsafe(32)
         self.lock = threading.Lock()
         self.jobs = {}
+        self.tournament_jobs = {}
+        self.tournaments_dir = self.directory / "tournaments"
+        self.tournaments_dir.mkdir(parents=True, exist_ok=True)
+
+    def tournaments(self):
+        return sorted((json.loads(p.read_text(encoding="utf-8"))
+                       for p in self.tournaments_dir.glob("*.json")),
+                      key=lambda r: r["created_at"], reverse=True)
+
+    def start_tournament(self, data):
+        ids = data.get("bot_ids")
+        count, seed, repeats = data.get("paired_deals", 5), data.get("seed", 42), data.get("repeats", 3)
+        if not isinstance(ids, list) or not 2 <= len(ids) <= 16 or any(not isinstance(i, str) for i in ids):
+            raise ValueError("Select 2–16 bots")
+        if len(set(ids)) != len(ids):
+            raise ValueError("Each bot can enter once")
+        if type(count) is not int or not 1 <= count <= 200:
+            raise ValueError("Paired deals must be between 1 and 200")
+        if type(seed) is not int or not 0 <= seed < 2**32:
+            raise ValueError("Invalid seed")
+        if type(repeats) is not int or not 1 <= repeats <= 10:
+            raise ValueError("Seed repetitions must be between 1 and 10")
+        catalog = {b["id"]: b for b in self.bots()}
+        if any(i not in catalog for i in ids):
+            raise ValueError("Unknown bot")
+        bots = [{**catalog[i], "agent": self.resolve(i)} for i in sorted(ids)]
+        if any(isinstance(b["agent"], ScriptAgent) for b in bots) and data.get("trust_scripts") is not True:
+            raise ValueError("Confirm that you trust the uploaded scripts before running")
+        if not self.lock.acquire(blocking=False):
+            raise ValueError("Another match or tournament is running")
+        identity = uuid.uuid4().hex
+        job = {"id": identity, "status": "running", "matches_completed": 0,
+               "total_matches": len(bots) * (len(bots)-1) // 2 * repeats, "current_pair": []}
+        self.tournament_jobs[identity] = job
+        threading.Thread(target=self._run_tournament, args=(identity, bots, count, seed, repeats), daemon=True).start()
+        return dict(job)
+
+    def _run_tournament(self, identity, bots, count, seed, repeats):
+        try:
+            def progress(completed, pair):
+                self.tournament_jobs[identity].update(matches_completed=completed, current_pair=pair)
+            result = run_tournament(bots, count, seed, repeats, progress=progress)
+            result.update(id=identity, created_at=datetime.now(timezone.utc).isoformat(),
+                          entrants=[{k: v for k, v in b.items() if k != "agent"} for b in bots])
+            (self.tournaments_dir / f"{identity}.json").write_text(json.dumps(result, indent=2), encoding="utf-8")
+            self.tournament_jobs[identity] = result
+        except Exception as exc:
+            self.tournament_jobs[identity] = {"id": identity, "status": "error", "error": str(exc)[:300]}
+        finally:
+            self.lock.release()
 
     def bots(self):
         bots = [{"id": k, "name": k.replace("_", " ").title(), "type": "built-in"} for k in BASELINES]
@@ -143,7 +194,13 @@ def handler_for(arena):
                 return self.respond(arena.bots())
             if path == "/api/matches":
                 return self.respond(arena.matches())
+            if path == "/api/tournaments":
+                return self.respond(arena.tournaments())
             parts = path.strip("/").split("/")
+            if len(parts) == 3 and parts[:2] == ["api", "tournaments"]:
+                known = {r["id"]: r for r in arena.tournaments()}
+                result = arena.tournament_jobs.get(parts[2], known.get(parts[2]))
+                return self.respond(result if result else {"error": "Tournament not found"}, 200 if result else 404)
             if len(parts) in (3, 4) and parts[:2] == ["api", "matches"]:
                 identity = parts[2]
                 # Never turn an arbitrary request path into a filesystem path.
@@ -175,6 +232,8 @@ def handler_for(arena):
                     return self.respond(arena.add_bot(data.get("name"), data.get("source")), 201)
                 if path == "/api/matches":
                     return self.respond(arena.start(data), 202)
+                if path == "/api/tournaments":
+                    return self.respond(arena.start_tournament(data), 202)
                 return self.respond({"error": "Not found"}, 404)
             except (ValueError, SyntaxError, UnicodeDecodeError) as exc:
                 return self.respond({"error": str(exc)[:300]}, 400)

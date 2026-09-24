@@ -11,6 +11,21 @@
 <main>
   <section class="hero"><div><p class="eyebrow">A SMALL ARENA FOR BIG IDEAS</p><h1>Let your bot<br>do the talking<span>.</span></h1><p class="intro">Build a strategy. Challenge a friend. Find the edge.<br>Your private poker workshop, running on your own machine.</p></div><div class="hero-cards" aria-hidden="true"><div class="playing-card tilt">A<span>♠</span></div><div class="playing-card">K<span>♠</span></div><span class="chip">100<br><small>BIG BLINDS</small></span></div></section>
   <div class="rule-strip"><span><b>01</b> Heads-up Hold’em</span><span><b>05</b> Games per match</span><span><b>↔</b> Deals played in both seats</span><span><b>100 BB</b> Fresh stack each hand</span></div>
+  <section class="panel tournament">
+    <div class="section-top"><p class="eyebrow">AUTOMATIC TOURNAMENT</p><span class="tag">EVERY BOT VS EVERY BOT</span></div>
+    <h2>Find your top bot.</h2>
+    <p class="body-copy">Select the field. We schedule every pairing, play five games per match, and rank the results across multiple deal seeds.</p>
+    <form id="tournament-form">
+      <div id="entrants" class="entrants"></div>
+      <div class="form-row"><div><label for="tournament-deals">PAIRED DEALS / GAME</label><input id="tournament-deals" type="number" value="5" min="1" max="200" required></div><div><label for="repeats">SEED REPETITIONS</label><input id="repeats" type="number" value="3" min="1" max="10" required></div><div><label for="tournament-seed">STARTING SEED</label><input id="tournament-seed" type="number" value="42" min="0" max="4294967295" required></div></div>
+      <p id="tournament-size" class="hint"></p>
+      <label class="trust"><input id="tournament-trust" type="checkbox"><span>I trust the uploaded scripts selected for this tournament.</span></label>
+      <button class="primary" id="tournament-run" type="submit">Run automatic tournament →</button>
+    </form>
+    <p id="tournament-progress" role="status" class="hint"></p>
+    <div id="leaderboard" hidden><h2 id="leader-title"></h2><p class="hint">Ranked by match points (win 1, draw ½), then net chips. Bots with forfeits cannot win. This ranks the selected bots on the tested deals.</p><div class="table-scroll"><table><thead><tr><th>RANK</th><th>BOT</th><th>POINTS</th><th>W / D / L</th><th>NET CHIPS</th><th>STATUS</th></tr></thead><tbody id="standings"></tbody></table></div><a id="tournament-download" class="text-link" download="tournament.json">Download tournament results</a></div>
+    <label for="past-tournaments">SAVED TOURNAMENTS</label><select id="past-tournaments"><option value="">Select a previous tournament</option></select>
+  </section>
   <div class="workspace">
     <section class="panel setup"><div class="section-top"><p class="eyebrow">01 / PLAY</p><span class="tag">PRACTICE MATCH</span></div><h2>Set the table</h2>
       <form id="match-form">
@@ -31,7 +46,7 @@
   </div>
   <section id="replay-panel" class="panel replay" hidden><div class="section-top"><p class="eyebrow">03 / REVIEW</p><span class="tag">COMPLETED MATCH · CARDS REVEALED</span></div><h2>Every decision tells a story.</h2><div class="replay-controls"><label for="hand-picker">HAND</label><select id="hand-picker"></select><button id="prev" class="secondary">← Previous</button><button id="next" class="secondary">Next →</button><span id="step-label"></span></div><div class="poker-table"><div class="seat"><b id="seat-0-name"></b><div id="cards-0" class="cards"></div><span id="stack-0"></span></div><div class="board-area"><span id="street" class="eyebrow"></span><div id="board" class="cards"></div><b id="pot"></b><p id="decision"></p></div><div class="seat"><b id="seat-1-name"></b><div id="cards-1" class="cards"></div><span id="stack-1"></span></div></div></section>
   <div class="workspace lower"><section class="panel"><p class="eyebrow">BRING YOUR OWN STRATEGY</p><h2>A few lines. A different game.</h2><p class="body-copy">Start with our equity baseline, change the decisions, and upload your version. Each bot defines <code>agent(observation, configuration)</code>.</p><form id="upload-form"><label for="bot-name">BOT NAME</label><input id="bot-name" maxlength="60" placeholder="e.g. River Fox" required><label for="bot-file">PYTHON SCRIPT · UP TO 100 KB</label><input id="bot-file" type="file" accept=".py" required><button class="secondary" type="submit">Add bot to this laptop ↗</button></form><p id="upload-status" role="status" class="hint"></p><p class="hint">Uploads are syntax-checked, then saved locally. Only run scripts you trust. A process timeout is not a security sandbox.</p></section><section class="panel"><p class="eyebrow">YOUR NOTEBOOK</p><h2>Recent matches</h2><div id="history" class="history"><p class="hint">No matches yet. Start a new experiment above.</p></div></section></div>
-  <section class="notes"><h3>Built for experiments, not promises.</h3><p>The starter uses simple equity estimates, pot odds, position, and occasional bluffs. It is an educational baseline—not an optimal poker strategy. Short matches are noisy; use 200 paired deals per game for the proposed full workload. This version runs head-to-head practice. Four-round Swiss tournaments are planned.</p><p>Baseline concept inspiration: <a href="https://github.com/aatmaj28/Algorithmic-Poker-Hackathon" target="_blank" rel="noreferrer">Aatmaj Salunke &amp; Yaksh Shah’s project ↗</a>. Independently written implementation.</p></section>
+
 </main><footer><span>♠ POKER LAB</span><span>Local by design. Share the code, compare the results.</span></footer>
 <div id="error" role="alert" hidden></div>
 </body></html>

@@ -11,6 +11,16 @@ async function api(path, data) {
 function signed(n) { return n > 0 ? '+' + n.toLocaleString() : n.toLocaleString(); }
 async function loadBots(selected) {
   const bots = await api('/api/bots');
+  const checked = new Set([...document.querySelectorAll('#entrants input:checked')].map(input => input.value));
+  const initial = !$('entrants').children.length;
+  $('entrants').replaceChildren(...bots.map(bot => {
+    const label = document.createElement('label'); label.className = 'trust';
+    const input = document.createElement('input'); input.type = 'checkbox'; input.value = bot.id;
+    input.checked = initial || checked.has(bot.id) || selected === bot.id;
+    input.onchange = tournamentSize;
+    label.append(input, document.createTextNode(bot.name)); return label;
+  }));
+  tournamentSize();
   for (const id of ['bot-a','bot-b']) {
     const previous = $(id).value;
     $(id).replaceChildren(...bots.map(bot => new Option(bot.name + (bot.type === 'uploaded' ? ' · uploaded' : ''), bot.id)));
@@ -97,4 +107,43 @@ $('replay-open').onclick = async () => {
 $('hand-picker').onchange = () => { handIndex = Number($('hand-picker').value); frameIndex = 0; renderHand(); };
 $('prev').onclick = () => { frameIndex--; renderHand(); };
 $('next').onclick = () => { frameIndex++; renderHand(); };
-Promise.all([loadBots(),loadHistory()]).catch(exc => error(exc.message));
+function tournamentSize() {
+  const count = document.querySelectorAll('#entrants input:checked').length;
+  const matches = count * (count-1) / 2 * Number($('repeats').value);
+  $('tournament-size').textContent = `${count} bots · ${matches} matches · up to ${matches * Number($('tournament-deals').value) * 10} hands`;
+}
+for (const id of ['repeats','tournament-deals']) $(id).oninput = tournamentSize;
+function showTournament(result) {
+  $('leaderboard').hidden = false;
+  const winners = result.standings.filter(row => result.winner_ids.includes(row.id));
+  $('leader-title').textContent = !winners.length ? 'No eligible winner' : winners.length > 1 ? 'Tied at the top: ' + winners.map(r => r.name).join(', ') : winners[0].name + ' tops this tournament';
+  $('standings').replaceChildren(...result.standings.map(row => {
+    const tr = document.createElement('tr');
+    [row.rank,row.name,row.points,`${row.wins} / ${row.draws} / ${row.losses}`,signed(row.net_chips),row.eligible ? 'Complete' : `${row.forfeits} forfeits`].forEach(value => { const td = document.createElement('td'); td.textContent = value; tr.append(td); });
+    return tr;
+  }));
+  $('tournament-download').href = `/api/tournaments/${result.id}`;
+}
+let savedTournaments = [];
+async function loadTournaments() {
+  savedTournaments = await api('/api/tournaments');
+  $('past-tournaments').replaceChildren(new Option('Select a previous tournament',''), ...savedTournaments.map(r => new Option(`${new Date(r.created_at).toLocaleString()} · ${r.standings.length} bots · ${r.total_matches} matches`,r.id)));
+}
+$('past-tournaments').onchange = () => { const result = savedTournaments.find(r => r.id === $('past-tournaments').value); if(result) showTournament(result); };
+$('tournament-form').onsubmit = async event => {
+  event.preventDefault(); $('tournament-run').disabled = true; $('run').disabled = true;
+  $('tournament-progress').textContent = 'Preparing the schedule…';
+  try {
+    let job = await api('/api/tournaments', {bot_ids:[...document.querySelectorAll('#entrants input:checked')].map(i => i.value),paired_deals:Number($('tournament-deals').value),seed:Number($('tournament-seed').value),repeats:Number($('repeats').value),trust_scripts:$('tournament-trust').checked});
+    while(job.status === 'running') {
+      $('tournament-progress').textContent = `${job.matches_completed} / ${job.total_matches} matches complete · ${job.current_pair.join(' vs ')}`;
+      await new Promise(resolve => setTimeout(resolve,1000));
+      job = await api(`/api/tournaments/${job.id}`);
+    }
+    if(job.status === 'error') throw new Error(job.error);
+    showTournament(job); await loadTournaments();
+    $('tournament-progress').textContent = `${job.total_matches} matches finished. Results saved.`;
+  } catch(exc) { error(exc.message); $('tournament-progress').textContent = 'Tournament could not finish: '+exc.message; }
+  finally { $('tournament-run').disabled = false; $('run').disabled = false; }
+};
+Promise.all([loadBots(),loadHistory(),loadTournaments()]).catch(exc => error(exc.message));

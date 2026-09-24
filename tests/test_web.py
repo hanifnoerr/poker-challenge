@@ -78,6 +78,24 @@ class WebTests(unittest.TestCase):
                 self.request("/api/matches", data)
             self.assertEqual(exc.exception.code, 400)
 
+    def test_tournament_validation_and_persistence(self):
+        for data in ({"bot_ids":["starter"]}, {"bot_ids":["starter","starter"]},
+                     {"bot_ids":["calling_station","tight_aggressive"],"repeats":0}):
+            with self.assertRaises(HTTPError):
+                self.request("/api/tournaments", data)
+        with self.request("/api/tournaments", {"bot_ids":["calling_station","tight_aggressive"],"paired_deals":1,"repeats":2}) as response:
+            job = json.load(response)
+        deadline = time.monotonic() + 10
+        while time.monotonic() < deadline:
+            with self.request("/api/tournaments/"+job["id"]) as response:
+                result = json.load(response)
+            if result["status"] != "running":
+                break
+            time.sleep(0.02)
+        self.assertEqual(result["status"], "complete")
+        self.assertEqual(result["total_matches"], 2)
+        self.assertEqual(Arena(self.temp.name).tournaments()[0]["id"], job["id"])
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -52,6 +52,16 @@ remote submission service.
 
 ## Features
 
+- Automatic round-robin tournaments: select 2–16 bots and play every pairing
+  across 1–10 successive seeds, with five games per match. The default uses three
+  seeds. Every pair receives the same deal schedule for each seed.
+- Tournament leaderboard ordered by match points (win 1, draw 0.5), then net chips.
+  Exact ties share a rank. Any bot that forfeits is ineligible to win. Forfeited
+  matches contribute points but no fabricated chips. Results rank this field on
+  these deals, not a universally strongest strategy.
+- Saved tournament results and per-pair scores with JSON export. Tournament mode
+  does not save hand replays; run an individual matchup to inspect its hands.
+
 - Calling Station, Tight Aggressive, and Equity Starter baselines.
 - Local Python uploads with syntax checks and source SHA-256 identifiers.
 - Exactly five games per match, configurable deal count and seed.
@@ -148,7 +158,7 @@ Starter. `--help` lists options. Existing CLI output paths are overwritten.
 
 ## Scope
 
-Implemented: the local website and five-game head-to-head workflow. Planned:
+Implemented: the local website, automatic round-robin tournaments, and five-game head-to-head workflow. Planned:
 four-round Swiss tournaments for larger fields. Official Kaggle hosting is not part
 of this app. Historical proposals: [competition design](COMPETITION_DESIGN.md),
 [Kaggle adaptation](KAGGLE_ADAPTATION.md), [setup review](KAGGLE_SETUP_NOTES.md).
