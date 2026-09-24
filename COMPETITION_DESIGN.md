@@ -68,7 +68,7 @@ Keep private evaluation seeds and detailed replays inaccessible to active agents
 
 ## References and limits
 
-- [Northeastern ACM event](https://buttered-lupin-75d.notion.site/Algorithmic-Poker-Event-hosted-by-ACM-at-Northeastern-in-Collaboration-with-Code4Community-Disrupt--1a1b5df6bd4180838523cf0743b96813), read in the browser: uses multiplayer tables with timed elimination, not the four-round Swiss format. See KAGGLE_ADAPTATION.md for the proposed changes.
+- [Northeastern ACM event](https://buttered-lupin-75d.notion.site/Algorithmic-Poker-Event-hosted-by-ACM-at-Northeastern-in-Collaboration-with-Code4Community-Disrupt--1a1b5df6bd4180838523cf0743b96813), read in the browser: uses multiplayer tables with timed elimination, not the four-round Swiss format.
 
 - Inspiration: [Kaggriculture](https://www.kaggle.com/competitions/kaggriculture/overview) and [Orbit Wars](https://www.kaggle.com/c/orbit-wars). Their full rules were not available through the fetched overview pages; the rules above are our proposal, not a reproduction of their evaluation formats.
 - [Official Kaggle Environments repository](https://github.com/Kaggle/kaggle-environments) documents observation/action agents, evaluation, and replay rendering. It is a useful integration reference; it does not establish permission or support for hosting our custom competition on Kaggle.
