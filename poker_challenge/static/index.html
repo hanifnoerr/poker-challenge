@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="arena-token" content="TOKEN_PLACEHOLDER">
+  <title>Poker Lab — Your next move</title>
+  <link rel="stylesheet" href="/style.css"><script src="/app.js" defer></script>
+</head>
+<body>
+<header><a class="brand" href="/">♠ <span>POKER LAB</span></a><span class="local"><i></i> LOCAL ARENA</span><a href="/starter_bot.py" download="starter_bot.py">Download starter ↗</a></header>
+<main>
+  <section class="hero"><div><p class="eyebrow">A SMALL ARENA FOR BIG IDEAS</p><h1>Let your bot<br>do the talking<span>.</span></h1><p class="intro">Build a strategy. Challenge a friend. Find the edge.<br>Your private poker workshop, running on your own machine.</p></div><div class="hero-cards" aria-hidden="true"><div class="playing-card tilt">A<span>♠</span></div><div class="playing-card">K<span>♠</span></div><span class="chip">100<br><small>BIG BLINDS</small></span></div></section>
+  <div class="rule-strip"><span><b>01</b> Heads-up Hold’em</span><span><b>05</b> Games per match</span><span><b>↔</b> Deals played in both seats</span><span><b>100 BB</b> Fresh stack each hand</span></div>
+  <div class="workspace">
+    <section class="panel setup"><div class="section-top"><p class="eyebrow">01 / PLAY</p><span class="tag">PRACTICE MATCH</span></div><h2>Set the table</h2>
+      <form id="match-form">
+        <label for="bot-a">YOUR BOT</label><select id="bot-a" required></select>
+        <div class="versus">VERSUS</div>
+        <label for="bot-b">OPPONENT</label><select id="bot-b" required></select>
+        <div class="form-row"><div><label for="deals">PAIRED DEALS / GAME</label><input id="deals" type="number" min="1" max="200" value="5" required></div><div><label for="seed">DEAL SEED</label><input id="seed" type="number" min="0" max="4294967295" value="42" required></div></div>
+        <p class="hint" id="hand-count">50 hands total · quick practice</p>
+        <label class="trust"><input id="trust" type="checkbox"> <span>I trust any uploaded scripts in this match. They run locally with my computer’s permissions.</span></label>
+        <button class="primary" id="run" type="submit">Run five-game match <span>→</span></button>
+      </form>
+      <div id="progress" role="status" class="notice" hidden></div>
+    </section>
+    <section class="panel results"><div class="section-top"><p class="eyebrow">02 / LEARN</p><span class="tag">MATCH RESULTS</span></div><h2 id="result-title">Find your edge</h2>
+      <div id="empty" class="empty"><span>♧</span><h3>Your first matchup starts here.</h3><p>Run a match to compare net winnings across five games.<br>Then explore the decisions behind the result.</p></div>
+      <div id="result" hidden><div class="score-grid"><div><p id="name-a"></p><strong id="score-a"></strong><small>NET CHIPS</small></div><div><p id="name-b"></p><strong id="score-b"></strong><small>NET CHIPS</small></div></div><p id="result-note" class="hint"></p><table><thead><tr><th>GAME</th><th>HANDS</th><th>BOT A</th><th>BOT B</th></tr></thead><tbody id="game-rows"></tbody></table><button id="replay-open" class="secondary">Explore hand replays →</button><a id="download-result" class="text-link" download="match.json">Download result JSON</a></div>
+    </section>
+  </div>
+  <section id="replay-panel" class="panel replay" hidden><div class="section-top"><p class="eyebrow">03 / REVIEW</p><span class="tag">COMPLETED MATCH · CARDS REVEALED</span></div><h2>Every decision tells a story.</h2><div class="replay-controls"><label for="hand-picker">HAND</label><select id="hand-picker"></select><button id="prev" class="secondary">← Previous</button><button id="next" class="secondary">Next →</button><span id="step-label"></span></div><div class="poker-table"><div class="seat"><b id="seat-0-name"></b><div id="cards-0" class="cards"></div><span id="stack-0"></span></div><div class="board-area"><span id="street" class="eyebrow"></span><div id="board" class="cards"></div><b id="pot"></b><p id="decision"></p></div><div class="seat"><b id="seat-1-name"></b><div id="cards-1" class="cards"></div><span id="stack-1"></span></div></div></section>
+  <div class="workspace lower"><section class="panel"><p class="eyebrow">BRING YOUR OWN STRATEGY</p><h2>A few lines. A different game.</h2><p class="body-copy">Start with our equity baseline, change the decisions, and upload your version. Each bot defines <code>agent(observation, configuration)</code>.</p><form id="upload-form"><label for="bot-name">BOT NAME</label><input id="bot-name" maxlength="60" placeholder="e.g. River Fox" required><label for="bot-file">PYTHON SCRIPT · UP TO 100 KB</label><input id="bot-file" type="file" accept=".py" required><button class="secondary" type="submit">Add bot to this laptop ↗</button></form><p id="upload-status" role="status" class="hint"></p><p class="hint">Uploads are syntax-checked, then saved locally. Only run scripts you trust. A process timeout is not a security sandbox.</p></section><section class="panel"><p class="eyebrow">YOUR NOTEBOOK</p><h2>Recent matches</h2><div id="history" class="history"><p class="hint">No matches yet. Start a new experiment above.</p></div></section></div>
+  <section class="notes"><h3>Built for experiments, not promises.</h3><p>The starter uses simple equity estimates, pot odds, position, and occasional bluffs. It is an educational baseline—not an optimal poker strategy. Short matches are noisy; use 200 paired deals per game for the proposed full workload. This version runs head-to-head practice. Four-round Swiss tournaments are planned.</p><p>Baseline concept inspiration: <a href="https://github.com/aatmaj28/Algorithmic-Poker-Hackathon" target="_blank" rel="noreferrer">Aatmaj Salunke &amp; Yaksh Shah’s project ↗</a>. Independently written implementation.</p></section>
+</main><footer><span>♠ POKER LAB</span><span>Local by design. Share the code, compare the results.</span></footer>
+<div id="error" role="alert" hidden></div>
+</body></html>

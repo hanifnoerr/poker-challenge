@@ -1,0 +1,6 @@
+name: poker-challenge
+channels:
+  - defaults
+dependencies:
+  - python=3.11
+  - setuptools=82.0.1
