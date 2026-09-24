@@ -149,15 +149,8 @@ python -m poker_challenge --seed 42 --replays outputs/hands.jsonl
 ```
 
 Tests cover ranking, betting, all-ins, payouts, observation privacy, chip
-conservation, paired deals, script execution/timeouts, and web flows. GitHub Actions
-is configured for Windows and Linux on Python 3.11.
+conservation, paired deals, script execution/timeouts, and web flows. Run these
+tests locally; no GitHub Actions workflow is configured.
 
 The CLI selects the two simple built-in bots; use the website for uploads and Equity
 Starter. `--help` lists options. Existing CLI output paths are overwritten.
-
-## Scope
-
-Implemented: the local website, automatic round-robin tournaments, and five-game head-to-head workflow. Planned:
-four-round Swiss tournaments for larger fields. Official Kaggle hosting is not part
-of this app. Historical proposals: [competition design](COMPETITION_DESIGN.md),
-[Kaggle adaptation](KAGGLE_ADAPTATION.md), [setup review](KAGGLE_SETUP_NOTES.md).
